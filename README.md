@@ -1,6 +1,6 @@
-# Dot Matrix Map
+# Dot Matrix
 
-Creates a dot matrix map.
+Creates a dot matrix.
 
 ## Installation
 ```
