@@ -46,29 +46,33 @@ def draw_dots(ctx, config):
                 color=dot)
 
 
+def noise(value, effect):
+    return (effect * random.randrange(-1, 1)) + value
+
+
 random.seed(1000)
 # start = (95, 156, 67)
 # start = (30, 71, 56)
 # stop = (242, 195, 179)
-start = (random.random() * 255, random.random()
-         * 255, random.random() * 255)
-stop = (random.random() * 255, random.random()
-        * 255, random.random() * 255)
+start = (235, 64, 52)
+stop = (52, 100, 235)
+# start = (random.random() * 255, random.random()
+#          * 255, random.random() * 255)
+# stop = (random.random() * 255, random.random()
+#         * 255, random.random() * 255)
 draw({
-    #    'width': 3000,
-    #    'height': 4000,
     'width': 600,
     'height': 1000,
     'padding-vertical': 0.125,
     'padding-horizontal': 0.025,
     'dots': {
-        'spacing': 0.35,
+        'spacing': 0.15,
         'colors': [
             [
                 dot_color(
                     start,
                     stop,
-                    (0.2 * ((random.random() * 2) - 1)) + (i+j)/18)
+                    noise((i + j) / 24, 0.2))
                 for i in range(10)
             ]
             for j in range(14)

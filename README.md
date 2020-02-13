@@ -2,6 +2,8 @@
 
 Creates a dot matrix.
 
+![Dot Matrix Example](https://github.com/alvinlao/dot-matrix/blob/master/example.png)
+
 ## Installation
 ```
 # Install cairo
