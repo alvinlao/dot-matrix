@@ -15,3 +15,7 @@ python3 -m venv env
 # Install dependencies
 env/bin/pip install -r requirements.txt
 ```
+
+## Data
+
+Download [population density data set](https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-rev11) and place in `data/data.ascii` directory.
