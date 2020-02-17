@@ -10,12 +10,12 @@ config_key = {
     Dimension.WIDTH: {
         'size': lambda c: c['width'],
         'padding-ratio': lambda c: c['padding-horizontal'],
-        'num_dots': lambda c: len(c['dots']['colors'][0]),
+        'num_dots': lambda c: len(c['dots'][0]),
     },
     Dimension.HEIGHT: {
         'size': lambda c: c['height'],
         'padding-ratio': lambda c: c['padding-vertical'],
-        'num_dots': lambda c: len(c['dots']['colors']),
+        'num_dots': lambda c: len(c['dots']),
     },
 }
 

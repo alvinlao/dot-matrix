@@ -4,9 +4,11 @@ import random
 from dotmatrix.visualization.color import dot_color
 from dotmatrix.visualization.layout import Dimension, padding, dot_slot_size
 from dotmatrix.visualization.shapes import rectangle, circle
+from dotmatrix.populationdensity.dataset import load
 
 
-def draw(config):
+def draw(config, dots):
+    config['dots'] = dots
     surface = cairo.ImageSurface(
         cairo.FORMAT_ARGB32,
         config['width'],
@@ -29,8 +31,8 @@ def draw(config):
 
 
 def draw_dots(ctx, config):
-    dots = config['dots']['colors']
-    spacing_ratio = config['dots']['spacing']
+    dots = config['dots']
+    spacing_ratio = config['dot-spacing']
     dot_slot = dot_slot_size(config)
     circumference = dot_slot * (1 / (1 + spacing_ratio))
     spacing = dot_slot - circumference
@@ -46,36 +48,43 @@ def draw_dots(ctx, config):
                 color=dot)
 
 
-def noise(value, effect):
-    return (effect * random.randrange(-1, 1)) + value
-
-
-random.seed(1000)
-# start = (95, 156, 67)
-# start = (30, 71, 56)
-# stop = (242, 195, 179)
-start = (235, 64, 52)
-stop = (52, 100, 235)
-# start = (random.random() * 255, random.random()
-#          * 255, random.random() * 255)
-# stop = (random.random() * 255, random.random()
-#         * 255, random.random() * 255)
-draw({
-    'width': 600,
-    'height': 1000,
-    'padding-vertical': 0.125,
-    'padding-horizontal': 0.025,
-    'dots': {
-        'spacing': 0.15,
-        'colors': [
-            [
-                dot_color(
-                    start,
-                    stop,
-                    noise((i + j) / 24, 0.2))
-                for i in range(10)
-            ]
-            for j in range(14)
-        ]
+if __name__ == "__main__":
+    config = {
+        'dataset': {
+            'filename': 'data/population_density.ascii',
+            'size': (10, 14),
+            'cache_directory': 'cache/',
+            # 'top_left_coordinate': (38.294140, -122.642074),
+            'top_left_coordinate': (38.294140, -122.642074),
+            'scale': 2,
+        },
+        'color': {
+            # 'start': (235, 64, 52),
+            # 'stop': (52, 100, 235),
+            'start': (30, 71, 56),
+            'stop': (242, 193, 178),
+            'none': (88, 195, 245),
+        },
+        'draw': {
+            'width': 600,
+            'height': 1000,
+            'padding-vertical': 0.125,
+            'padding-horizontal': 0.025,
+            'dot-spacing': 0.35,
+        },
     }
-})
+
+    dataset = load(config['dataset'])
+
+    max_value = (
+        dataset.filter(lambda v: v is not None)
+        .reduce(max))
+
+    dots = (
+        dataset.map(lambda v: dot_color(config['color'], v, max_value))
+        .matrix())
+
+    random.seed(1000)
+    draw(config['draw'], dots)
+
+    print('>>>>>>>')
