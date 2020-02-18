@@ -1,7 +1,8 @@
 import cairo
+import numpy
 import random
 
-from dotmatrix.visualization.color import dot_color
+from dotmatrix.visualization.color import background_color, dot_color
 from dotmatrix.visualization.layout import Dimension, padding, dot_slot_size
 from dotmatrix.visualization.shapes import rectangle, circle
 from dotmatrix.populationdensity.dataset import load
@@ -19,7 +20,7 @@ def draw(config, dots):
         ctx,
         p0=(0, 0),
         p1=(config['width'], config['height']),
-        color=(1, 1, 1))
+        color=background_color(config))
 
     ctx = cairo.Context(surface)
     ctx.translate(
@@ -48,28 +49,48 @@ def draw_dots(ctx, config):
                 color=dot)
 
 
+def _allow_none(f):
+    def _f(v):
+        if v is None:
+            return v
+        else:
+            return f(v)
+    return _f
+
+
+def _flatten(xs):
+    return [x for xss in xs for x in xss]
+
+
 if __name__ == "__main__":
+    dark_green = (30, 71, 56)
+    green = (117, 183, 146)
+    hot_pink = (255, 148, 148)
+    orange = (255, 148, 0)
+
     config = {
         'dataset': {
             'filename': 'data/population_density.ascii',
             'size': (10, 14),
             'cache_directory': 'cache/',
-            # 'top_left_coordinate': (38.294140, -122.642074),
             'top_left_coordinate': (38.294140, -122.642074),
             'scale': 2,
         },
         'color': {
-            # 'start': (235, 64, 52),
-            # 'stop': (52, 100, 235),
-            'start': (30, 71, 56),
-            'stop': (242, 193, 178),
-            'none': (88, 195, 245),
+            'quantiles': _flatten([
+                [dark_green] * 28,
+                [green] * 15,
+                [hot_pink] * 4,
+                [orange] * 2,
+            ]),
+            'water': (144, 221, 240),
         },
         'draw': {
-            'width': 600,
+            'background_color': (255, 255, 255),
+            'width': 650,
             'height': 1000,
-            'padding-vertical': 0.125,
-            'padding-horizontal': 0.025,
+            'padding-vertical': 0.10,
+            'padding-horizontal': 0.04,
             'dot-spacing': 0.35,
         },
     }
@@ -80,8 +101,22 @@ if __name__ == "__main__":
         dataset.filter(lambda v: v is not None)
         .reduce(max))
 
+    num_quantiles = len(config['color']['quantiles']) - 1
+    dataset_list = [v for v in dataset.iterable() if v is not None]
+    quantiles = (
+        numpy.quantile(
+            dataset_list,
+            [
+                q / num_quantiles
+                for q in range(num_quantiles)]))
+
+    def find_quantile(v): return next(
+        (index for index, x in enumerate(quantiles) if v <= x), num_quantiles)
+
     dots = (
-        dataset.map(lambda v: dot_color(config['color'], v, max_value))
+        dataset
+        .map(lambda v: _allow_none(find_quantile)(v))
+        .map(lambda v: dot_color(config['color'], v, len(quantiles) - 1))
         .matrix())
 
     random.seed(1000)

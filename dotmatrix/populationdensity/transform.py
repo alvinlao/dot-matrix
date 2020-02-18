@@ -3,7 +3,7 @@ def transform(config, dataset):
     return (
         dataset
         .map_with_key(
-            lambda key, v: _neighbor_max(dataset, key, config['scale']))
+            lambda key, v: _neighbor_sum(dataset, key, config['scale']))
         .filter_by_key(lambda key: key in anchors))
 
 
@@ -20,6 +20,13 @@ def _anchors(config, dataset):
     )
 
 
+def _neighbor_sum(dataset, key, size):
+    return _sum([
+        dataset.get(neighbor_key)
+        for neighbor_key in _neighbor_keys(dataset, key, size)
+    ])
+
+
 def _neighbor_max(dataset, key, size):
     return _max([
         dataset.get(neighbor_key)
@@ -34,6 +41,13 @@ def _neighbor_keys(dataset, key, size):
         for x_index in range(size)
         for y_index in range(size)
     ]
+
+
+def _sum(iterable):
+    if not iterable or None in iterable:
+        return None
+    else:
+        return sum(iterable)
 
 
 def _max(iterable):
