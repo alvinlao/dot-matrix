@@ -63,10 +63,11 @@ def _flatten(xs):
 
 
 if __name__ == "__main__":
+    random.seed(1000)
+
     blue = {'population': [(144, 221, 240)],
             'weights': [1]}
-    dark_green = {'population': [
-        (30, 71, 56), (81, 73, 63)], 'weights': [6, 0]}
+    dark_green = {'population': [(30, 71, 56)]}
     green = {'population': [(117, 183, 146)]}
     light_grey = {'population': [(200, 200, 200)]}
     hot_pink = {'population': [(255, 148, 148)]}
@@ -127,7 +128,6 @@ if __name__ == "__main__":
         .map(lambda v: dot_color(config['color'], v, len(quantiles) - 1))
         .matrix())
 
-    random.seed(1000)
     draw(config['draw'], dots)
 
     print('>>>>>>>')
