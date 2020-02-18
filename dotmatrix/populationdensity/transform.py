@@ -1,9 +1,17 @@
+from statistics import mean
+
+
 def transform(config, dataset):
+    dataset_mean = mean(dataset.filter(lambda v: v is not None).iterable())
     anchors = _anchors(config, dataset)
     return (
         dataset
         .map_with_key(
-            lambda key, v: _neighbor_sum(dataset, key, config['scale']))
+            lambda key, v: _neighbor_reduce(
+                dataset,
+                key,
+                config['scale'],
+                _outlier(dataset_mean)))
         .filter_by_key(lambda key: key in anchors))
 
 
@@ -20,18 +28,13 @@ def _anchors(config, dataset):
     )
 
 
-def _neighbor_sum(dataset, key, size):
-    return _sum([
-        dataset.get(neighbor_key)
-        for neighbor_key in _neighbor_keys(dataset, key, size)
-    ])
-
-
-def _neighbor_max(dataset, key, size):
-    return _max([
-        dataset.get(neighbor_key)
-        for neighbor_key in _neighbor_keys(dataset, key, size)
-    ])
+def _neighbor_reduce(dataset, key, size, f):
+    return _reducer(
+        [
+            dataset.get(neighbor_key)
+            for neighbor_key in _neighbor_keys(dataset, key, size)
+        ],
+        f)
 
 
 def _neighbor_keys(dataset, key, size):
@@ -43,15 +46,14 @@ def _neighbor_keys(dataset, key, size):
     ]
 
 
-def _sum(iterable):
+def _reducer(iterable, f):
     if not iterable or None in iterable:
         return None
     else:
-        return sum(iterable)
+        return f(iterable)
 
 
-def _max(iterable):
-    if not iterable or None in iterable:
-        return None
-    else:
-        return max(iterable)
+def _outlier(avg):
+    def _inner(xs):
+        return sorted(xs, key=lambda x: abs(x - avg), reverse=True)[0]
+    return _inner

@@ -7,12 +7,14 @@ def background_color(config):
 
 def dot_color(config, value, max_value):
     if value is None:
-        return _color_noise(_normalize_rgb(config['water']), 0)
+        return _color_noise(
+            _normalize_rgb(_choose(config['water'])),
+            0)
 
     scale = value / max_value
     quantiles = config['quantiles']
     group = _group(scale, len(quantiles))
-    return _color_noise(_normalize_rgb(quantiles[group]), 0)
+    return _color_noise(_normalize_rgb(_choose(quantiles[group])), 0)
 
 
 def _normalize_rgb(color):
@@ -25,7 +27,7 @@ def _normalize_rgb(color):
         color[0] / 255,
         color[1] / 255,
         color[2] / 255,
-        alpha
+        alpha,
     )
 
 
@@ -42,3 +44,7 @@ def _noise(value, effect):
 
 def _group(value, num_groups):
     return min(int(value * num_groups), num_groups - 1)
+
+
+def _choose(color):
+    return random.choices(**color)[0]

@@ -63,10 +63,15 @@ def _flatten(xs):
 
 
 if __name__ == "__main__":
-    dark_green = (30, 71, 56)
-    green = (117, 183, 146)
-    hot_pink = (255, 148, 148)
-    orange = (255, 148, 0)
+    blue = {'population': [(144, 221, 240)],
+            'weights': [1]}
+    dark_green = {'population': [
+        (30, 71, 56), (81, 73, 63)], 'weights': [6, 0]}
+    green = {'population': [(117, 183, 146)]}
+    light_grey = {'population': [(200, 200, 200)]}
+    hot_pink = {'population': [(255, 148, 148)]}
+    orange = {'population': [(255, 148, 0)]}
+    blood_orange = {'population': [(237, 114, 0)]}
 
     config = {
         'dataset': {
@@ -78,12 +83,15 @@ if __name__ == "__main__":
         },
         'color': {
             'quantiles': _flatten([
-                [dark_green] * 28,
-                [green] * 15,
-                [hot_pink] * 4,
-                [orange] * 2,
+                [blue] * 2,
+                [dark_green] * 33,
+                [green] * 9,
+                [light_grey] * 3,
+                [hot_pink] * 3,
+                [orange] * 1,
+                [blood_orange] * 1,
             ]),
-            'water': (144, 221, 240),
+            'water': blue,
         },
         'draw': {
             'background_color': (255, 255, 255),
